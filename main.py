@@ -3,6 +3,7 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 import models
+import schemas
 from database import SessionLocal, engine
 from routers import user
 

@@ -1,8 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import time
-from fastapi import FastAPI, status, HTTPException, Depends, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 
 from utils import (

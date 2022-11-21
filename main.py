@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 from database import SessionLocal, engine
-from routers import user
+from routers import user, upload
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -17,14 +17,11 @@ app.include_router(
     tags=["user"]
 )
 
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+app.include_router(
+    upload.router,
+    prefix="/upload",
+    tags=["upload"]
+)
 
 
 @app.get("/")

@@ -22,10 +22,18 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_name = Column(String(64), unique=True, index=True)
-    email = Column(String(64), unique=True, index=True)
+    email = Column(String(64), index=True)
     hashed_password = Column(String(255))
-    profile_picture = Column(String(255))
-    page_title = Column(String(32))
-    page_bio = Column(String(128))
+    enable = Column(Boolean, default=True)
     create_time = Column(Integer)
     update_time = Column(Integer)
+
+
+class Stetting(Base):
+    __tablename__ = "setting"
+
+    id = Column(Integer, primary_key=True, index=True)
+    theme = Column(String(32))
+    page_title = Column(String(32))
+    page_bio = Column(String(128))
+    profile_picture = Column(String(255))

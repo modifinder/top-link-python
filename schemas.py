@@ -23,6 +23,10 @@ class UserAuth(UserBase):
     password: str
 
 
+class UserInfo(UserBase):
+    user_id: int
+
+
 class UserCreate(UserBase):
     enable: bool
     create_time: int
@@ -51,3 +55,21 @@ class TokenData(BaseModel):
 
 class StringData(BaseModel):
     data: Union[str, None] = None
+
+
+class LinkBase(BaseModel):
+    uuid: str
+    thumb: str
+    url: str
+    title: str
+    position: int
+    show: bool = True
+    type: str = "default"
+
+
+class LinkCreate(LinkBase):
+    user_id: int
+
+
+class LinkUpdate(BaseModel):
+    links: List[LinkBase]

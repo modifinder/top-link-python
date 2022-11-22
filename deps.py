@@ -31,7 +31,7 @@ def get_db():
         db.close()
 
 
-async def get_current_user(token: str = Depends(reuse_oauth), db: Session = Depends(get_db)) -> schemas.UserBase:
+async def get_current_user(token: str = Depends(reuse_oauth), db: Session = Depends(get_db)) -> schemas.UserInfo:
     try:
         payload = jwt.decode(
             token, JWT_SECRET_KEY, algorithms=[ALGORITHM]
@@ -51,7 +51,6 @@ async def get_current_user(token: str = Depends(reuse_oauth), db: Session = Depe
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # 获取user信息
     user = crud.get_user_by_user_name(db, token_data.sub)
 
     if user is None:
@@ -59,5 +58,10 @@ async def get_current_user(token: str = Depends(reuse_oauth), db: Session = Depe
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Could not find user",
         )
+    data = schemas.UserInfo(
+        user_id=user.id,
+        user_name=user.user_name,
+        email=user.email
+    )
+    return data
 
-    return schemas.UserBase(email=user.email, user_name=user.user_name)

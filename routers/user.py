@@ -65,3 +65,5 @@ async def login(user: schemas.UserAuth, db: Session = Depends(get_db)):
 @router.get('/me', summary='Get details of currently logged in user')
 async def get_me(user: schemas.UserBase = Depends(get_current_user)):
     return schemas.Response(data=user.dict())
+
+

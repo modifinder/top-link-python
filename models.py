@@ -8,13 +8,14 @@ from database import Base
 class Links(Base):
     """链接"""
     __tablename__ = "links"
-    uuid = Column(CHAR(32), primary_key=True, index=True)
+    uuid = Column(CHAR(36), primary_key=True, index=True, unique=True)
+    user_id = Column(Integer, index=True)
     thumb = Column(String(255))
     title = Column(String(255))
     position = Column(Integer)
     url = Column(String(255))
-    uid = Column(Integer)
     show = Column(Boolean, default=False)
+    type = Column(String(32), default="default")
 
 
 class User(Base):
@@ -29,10 +30,11 @@ class User(Base):
     update_time = Column(Integer)
 
 
-class Stetting(Base):
+class Setting(Base):
     __tablename__ = "setting"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
     theme = Column(String(32))
     page_title = Column(String(32))
     page_bio = Column(String(128))

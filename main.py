@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 from database import SessionLocal, engine
-from routers import user, upload
+from routers import user, upload, setting, links
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -17,10 +17,24 @@ app.include_router(
     tags=["user"]
 )
 
+
+app.include_router(
+    links.router,
+    prefix="/links",
+    tags=["links"]
+)
+
+
 app.include_router(
     upload.router,
     prefix="/upload",
     tags=["upload"]
+)
+
+app.include_router(
+    setting.router,
+    prefix="/setting",
+    tags=["setting"]
 )
 
 

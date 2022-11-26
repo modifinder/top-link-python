@@ -57,13 +57,18 @@ class StringData(BaseModel):
     data: Union[str, None] = None
 
 
+class UploadThumb(BaseModel):
+    origin: str
+    image_b64: str
+
+
 class LinkBase(BaseModel):
-    uuid: str
+    lid: str
     thumb: str
     url: str
     title: str
     position: int
-    show: bool = True
+    display: bool = True
     type: str = "default"
 
 

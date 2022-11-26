@@ -50,15 +50,39 @@ def create_link(db: Session, link: schemas.LinkCreate):
     return db_link
 
 
+def delete_link_by_lid(db: Session, link_id: str):
+    """[Atomic] 根据lid删除一个链接"""
+    db.query(models.Links).filter(models.Links.lid == link_id).delete()
+    db.commit()
+    return
+
+
 def link_update_if__exist_or_insert(link: schemas.LinkCreate):
     """[Atomic]如果不存在则插入链接，否则更新链接"""
     conn = engine.connect()
-    sql = "INSERT INTO links (user_id, `show`, position, uuid, title, url, thumb, type) " \
+    sql = "INSERT INTO links (user_id, `display`, position, lid, title, url, thumb, type) " \
           "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ON DUPLICATE KEY " \
-          "UPDATE title='%s', url='%s', thumb='%s', position='%s', `show`='%s', type='%s';"
-    show = 1 if link.show else 0
-    res = conn.execute(sql % (link.user_id, show, link.position, escape_string(link.uuid), escape_string(link.title),
+          "UPDATE title='%s', url='%s', thumb='%s', position='%s', `display`='%s', type='%s';"
+    display = 1 if link.display else 0
+    res = conn.execute(sql % (link.user_id, display, link.position, escape_string(link.lid), escape_string(link.title),
                               escape_string(link.url), escape_string(link.thumb), escape_string(link.type),
                               escape_string(link.title), escape_string(link.url), escape_string(link.thumb),
-                              link.position, show, escape_string(link.type)))
+                              link.position, display, escape_string(link.type)))
 
+
+def fetch_themes(db: Session):
+    """[Atomic]"""
+    return db.query(models.Themes).filter().all()
+
+
+def get_theme_by_theme_name(db: Session, theme_name: str):
+    """[Atomic] 根据主题名，获取主题信息"""
+    return db.query(models.Themes).filter(models.Themes.name == theme_name).first()
+
+
+def set_setting_theme_by_user_id(db: Session, user_id: int, theme_name: str):
+    """[Atomic] 根据用户id，设置用户主题"""
+    setting = db.query(models.Setting).filter(models.Setting.user_id == user_id).first()
+    setting.theme = theme_name
+    db.commit()
+    return

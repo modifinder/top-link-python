@@ -1,11 +1,10 @@
 # -*- coding:utf-8 -*-
 
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 import models
 import schemas
 from database import SessionLocal, engine
-from routers import user, upload, setting, links
+from routers import user, upload, setting, links, theme
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -35,6 +34,12 @@ app.include_router(
     setting.router,
     prefix="/setting",
     tags=["setting"]
+)
+
+app.include_router(
+    theme.router,
+    prefix="/theme",
+    tags=["theme"]
 )
 
 

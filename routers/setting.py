@@ -30,3 +30,17 @@ async def get_user_setting(username: str, db: Session = Depends(get_db)):
         )
     user_setting = crud.get_setting_by_user_id(db, user.id)
     return schemas.Response(data=user_setting)
+
+
+@router.patch("/theme/{theme}")
+async def set_user_theme_by_user_id(db: Session = Depends(get_db), theme: str = "default",
+                                    user: schemas.UserInfo = Depends(get_current_user)):
+    """设置用户主题"""
+    allow_theme = [i for i in crud.fetch_themes(db) if i.name == theme]
+    if allow_theme and allow_theme[0].display:
+        crud.set_setting_theme_by_user_id(db, user.user_id, theme)
+        return schemas.Response()
+    raise HTTPException(
+        status_code=400,
+        detail="Not allow setting this theme"
+    )

@@ -44,3 +44,26 @@ async def set_user_theme_by_user_id(db: Session = Depends(get_db), theme: str = 
         status_code=400,
         detail="Not allow setting this theme"
     )
+
+
+@router.patch("/base")
+async def patch_setting_base(setting: schemas.SettingBase,
+                        user: schemas.UserInfo = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """
+    :param db:
+    :param setting:
+    :param user: deps
+    :return:
+    """
+    try:
+        crud.set_setting_base_by_user_id(db, user.user_id, setting)
+        return schemas.Response()
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=500,
+            detail="an error occurred"
+        )
+
+

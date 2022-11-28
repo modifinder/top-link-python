@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, CHAR
-from sqlalchemy.orm import relationship
 from database import Base
 
 

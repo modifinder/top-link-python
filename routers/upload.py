@@ -1,48 +1,37 @@
 # -*- coding: utf-8 -*-
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 import schemas
-import base64
 import uuid
 from deps import get_current_user
-import os
+import utils
 
 router = APIRouter()
 
 
-@router.post("/icon")
-async def upload_icon(data: schemas.UploadThumb, user: schemas.UserBase = Depends(get_current_user)):
-    base_path = "/Users/mac/JavaScriptProjects/top-bio/public/images/thumb"
+@router.post("/images/{sub_dir}")
+async def upload_icon(sub_dir: str, data: schemas.UploadImage, user: schemas.UserBase = Depends(get_current_user)):
+    old_file_name = data.origin.split("/")[-1]
+    new_file_name = user.user_name + "-" + str(uuid.uuid4()) + ".jpg"
 
-    try:
-        file_name = data.origin.split("/")[-1]
-        origin_path = f"{base_path}/{file_name}"
+    # 系统默认的图片(头像)不用删
+    if "default" not in old_file_name:
+        ok, msg = utils.delete_image_by_filename(sub_dir, old_file_name)
+        print(ok, msg)
+        if not ok:
+            raise HTTPException(status_code=502, detail=msg)
 
-        # 删除旧图片
-        if data.origin != "/images/thumb.jpg" and os.path.isfile(origin_path):
-            os.remove(origin_path)
-    except Exception as e:
-        print(e)
-
-    # 保存新图片
-    head, content = data.image_b64.split(",")
-    file_name = user.user_name + "-" + str(uuid.uuid4()) + ".jpg"
-    img_data = base64.b64decode(content)
-    with open(f"{base_path}/{file_name}", "wb") as f:
-        f.write(img_data)
-    return schemas.Response(data={"file_name": file_name})
+    ok, msg = utils.create_image(sub_dir, new_file_name, data.image_b64)
+    if not ok:
+        raise HTTPException(status_code=502, detail=msg)
+    return schemas.Response(data={"file_name": new_file_name})
 
 
-@router.delete("/icon")
+@router.delete("/thumb")
 async def delete_icon(data: schemas.StringData, user: schemas.UserBase = Depends(get_current_user)):
-    """删除图标"""
-    base_path = "/Users/mac/JavaScriptProjects/top-bio/public/images/thumb"
-    try:
-        file_name = data.data.split("/")[-1]
-        origin_path = f"{base_path}/{file_name}"
-        # 删除旧图片
-        if data.data != "/images/thumb.jpg" and os.path.isfile(origin_path):
-            os.remove(origin_path)
-    except Exception as e:
-        print(e)
+    """删除图标
+        [Todo] 需要加上删除鉴定
+    """
+    file_name = data.data.split("/")[-1]
+    utils.delete_image_by_filename("thumb", file_name)
     return schemas.Response()

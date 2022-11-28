@@ -86,3 +86,19 @@ def set_setting_theme_by_user_id(db: Session, user_id: int, theme_name: str):
     setting.theme = theme_name
     db.commit()
     return
+
+
+def set_setting_base_by_user_id(db: Session, user_id: int, data: schemas.SettingBase):
+    """
+    设置一些基础信息，包括标题、简介和头像
+    :param db:
+    :param user_id:
+    :param data:
+    :return:
+    """
+    setting = db.query(models.Setting).filter(models.Setting.user_id == user_id).first()
+    setting.page_title = data.page_title
+    setting.page_bio = data.page_bio
+    setting.profile_picture = data.profile_picture
+    db.commit()
+    return

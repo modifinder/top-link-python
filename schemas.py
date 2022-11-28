@@ -57,7 +57,7 @@ class StringData(BaseModel):
     data: Union[str, None] = None
 
 
-class UploadThumb(BaseModel):
+class UploadImage(BaseModel):
     origin: str
     image_b64: str
 
@@ -78,3 +78,9 @@ class LinkCreate(LinkBase):
 
 class LinkUpdate(BaseModel):
     links: List[LinkBase]
+
+
+class SettingBase(BaseModel):
+    page_title: str
+    page_bio: str
+    profile_picture: str

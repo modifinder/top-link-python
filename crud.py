@@ -102,3 +102,8 @@ def set_setting_base_by_user_id(db: Session, user_id: int, data: schemas.Setting
     setting.profile_picture = data.profile_picture
     db.commit()
     return
+
+
+def get_all_fields(db: Session):
+    """[Atomic] 获取所有人群信息"""
+    return db.query(models.Field).filter().all()

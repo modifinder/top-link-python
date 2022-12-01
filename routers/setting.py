@@ -1,15 +1,8 @@
 # -*- coding:utf-8 -*-
 
-import time
-from fastapi import status, HTTPException, Depends, APIRouter
+from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 
-from utils import (
-    get_hashed_password,
-    create_access_token,
-    create_refresh_token,
-    verify_password
-)
 
 from deps import get_current_user, get_db
 import crud
@@ -19,7 +12,24 @@ import models
 router = APIRouter()
 
 
-@router.get("/{username}")
+@router.get("/fields")
+async def get_setting_fields(db: Session = Depends(get_db)):
+    """
+    获取用户设置的字段
+    :param db:
+    :return:
+    """
+    fields = crud.get_all_fields(db)
+    print(fields)
+    if not fields:
+        raise HTTPException(
+            status_code=500,
+            detail="an error occurred"
+        )
+    return schemas.Response(data=fields)
+
+
+@router.get("/user/{username}")
 async def get_user_setting(username: str, db: Session = Depends(get_db)):
     """根据用户名页面设置信息"""
     user = crud.get_user_by_user_name(db, username)
@@ -65,5 +75,4 @@ async def patch_setting_base(setting: schemas.SettingBase,
             status_code=500,
             detail="an error occurred"
         )
-
 

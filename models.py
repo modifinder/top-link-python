@@ -69,3 +69,22 @@ class Themes(Base):
 
     thumb = Column(String(128))
 
+
+class Field(Base):
+    __tablename__ = "field"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(64))
+
+
+class InterestPrimary(Base):
+    __tablename__ = "interest_primary"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(64))
+
+
+class InterestSecondary(Base):
+    __tablename__ = "interest_secondary"
+    id = Column(Integer, primary_key=True, index=True)
+    pid = Column(Integer, index=True)
+    name = Column(String(64))
+

@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 import models
 import schemas
-from database import SessionLocal, engine
+from database import engine
 from routers import user, upload, setting, links, theme
 
 models.Base.metadata.create_all(bind=engine)

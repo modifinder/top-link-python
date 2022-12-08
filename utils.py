@@ -4,6 +4,7 @@ import base64
 from datetime import datetime, timedelta
 from typing import Union, Any
 from jose import jwt
+import re
 
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 14  # 14 days
@@ -75,3 +76,36 @@ def delete_image_by_filename(sub_dir: str, file_name: str):
         return True, ""
     except Exception as e:
         return False, e
+
+
+def get_retain_username() -> str:
+    """
+    获取保留用户名
+    :return:
+    """
+    retain_username = ["admin", "administrator", "root", "superuser", "super", "user", "guest",
+                       "anonymous", "anonymoususer", "anonymous_user"]
+    return retain_username
+
+
+def is_email(email: str) -> bool:
+    """
+    判断是否为邮箱
+    :param email:
+    :return:
+    """
+    if len(email) > 7:
+        if re.match("^.+@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) is not None:
+            return True
+    return False
+
+
+def is_username(username: str) -> bool:
+    """
+    判断是否为用户名
+    :param username:
+    :return:
+    """
+    if re.match("^[a-zA-Z0-9_-]{4,16}$", username) is not None:
+        return True
+    return False

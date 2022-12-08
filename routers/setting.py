@@ -12,6 +12,14 @@ import models
 router = APIRouter()
 
 
+@router.get("/explore")
+async def get_setting_explore(db: Session = Depends(get_db), field_code: int = 0, interest_code: int = 0,
+                              page: int = 1, limit: int = 15):
+    """根据领域和兴趣来查找用户"""
+    result, count = crud.get_setting_by_interest_code_and_field_code(db, field_code, interest_code, page, limit)
+    return schemas.ResponseWithCount(data=result, count=count)
+
+
 @router.get("/fields")
 async def get_setting_fields(db: Session = Depends(get_db)):
     """
@@ -20,13 +28,28 @@ async def get_setting_fields(db: Session = Depends(get_db)):
     :return:
     """
     fields = crud.get_all_fields(db)
-    print(fields)
     if not fields:
         raise HTTPException(
             status_code=500,
             detail="an error occurred"
         )
     return schemas.Response(data=fields)
+
+
+@router.get("/interest/primary")
+async def get_all_interest_primary(db: Session = Depends(get_db)):
+    """
+    获取所有的一级兴趣
+    :param db:
+    :return:
+    """
+    interest = crud.get_all_interest_primary(db)
+    if not interest:
+        raise HTTPException(
+            status_code=500,
+            detail="an error occurred"
+        )
+    return schemas.Response(data=interest)
 
 
 @router.get("/user/{username}")
@@ -75,4 +98,5 @@ async def patch_setting_base(setting: schemas.SettingBase,
             status_code=500,
             detail="an error occurred"
         )
+
 

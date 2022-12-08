@@ -34,10 +34,13 @@ class Setting(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
+    user_name = Column(String(64))
     theme = Column(String(32))
     page_title = Column(String(32))
     page_bio = Column(String(128))
     profile_picture = Column(String(255))
+    interest_primary_code = Column(Integer)
+    field_code = Column(Integer)
     verified = Column(Boolean, default=False)
     auth_content = Column(String(128))
 
@@ -88,3 +91,9 @@ class InterestSecondary(Base):
     pid = Column(Integer, index=True)
     name = Column(String(64))
 
+
+class Icon(Base):
+    __tablename__ = "icon"
+    id = Column(Integer, primary_key=True, index=True)
+    index = Column(Integer)
+    url = Column(String(255))

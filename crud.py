@@ -1,6 +1,8 @@
 # -*- coding:utf-8 -*-
+import math
 
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_, func
 from database import engine
 from pymysql.converters import escape_string
 import schemas
@@ -17,13 +19,28 @@ def get_user_by_user_id(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
+def get_last_insert_id(db: Session):
+    """[Atomic] 获取最后一次插入的id"""
+    return db.execute("SELECT LAST_INSERT_ID()").fetchone()[0]
+
+
 def create_user(db: Session, user: schemas.UserCreate):
     """[Atomic] 插入一个新的用户 """
     db_user = models.User(**user.dict())
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return db_user
+    last_id = get_last_insert_id(db)
+    return last_id
+
+
+def create_setting(db: Session, setting: schemas.SettingCreate):
+    """[Atomic] 插入一个新的用户设置"""
+    db_setting = models.Setting(**setting.dict())
+    db.add(db_setting)
+    db.commit()
+    db.refresh(db_setting)
+    return db_setting
 
 
 def get_setting_by_user_id(db: Session, user_id: int):
@@ -107,3 +124,48 @@ def set_setting_base_by_user_id(db: Session, user_id: int, data: schemas.Setting
 def get_all_fields(db: Session):
     """[Atomic] 获取所有人群信息"""
     return db.query(models.Field).filter().all()
+
+
+def get_all_interest_primary(db: Session):
+    """[Atomic] 获取所有主要兴趣信息"""
+    return db.query(models.InterestPrimary).filter().all()
+
+
+def get_setting_by_interest_code_and_field_code(db: Session, field_code: int = 0, interest_code: int = 0,
+                                                page: int = 1, page_size: 0 = 0):
+    """根据领域或者兴趣id查询用户的信息"""
+    query = db.query(models.Setting)
+
+    # 限制每页最大数据量
+    if page_size > 50:
+        page_size = 10
+
+    offset = (page - 1) * page_size
+    if field_code and interest_code:
+        data = query.filter(
+            and_(models.Setting.field_code == field_code, models.Setting.interest_primary_code == interest_code)
+        ).limit(page_size).offset(offset).all()
+        count = db.query(func.count(models.Setting.id)).filter(
+            models.Setting.field_code == field_code,
+            models.Setting.interest_primary_code == interest_code
+        ).scalar()
+        pages = math.ceil(count / page_size)
+        return data, pages
+    elif field_code and not interest_code:
+        data = query.filter(models.Setting.field_code == field_code).limit(page_size).offset(offset).all()
+        count = db.query(func.count(models.Setting.field_code)).filter(models.Setting.field_code == field_code).scalar()
+        pages = math.ceil(count / page_size)
+        return data, pages
+    elif not field_code and interest_code:
+        data = query.filter(models.Setting.interest_primary_code == interest_code).limit(page_size).offset(offset).all()
+        count = db.query(func.count(models.Setting.interest_primary_code)).filter(
+            models.Setting.interest_primary_code == interest_code
+        ).scalar()
+        pages = math.ceil(count / page_size)
+        return data, pages
+    return None, 0
+
+
+def get_all_icons(db: Session):
+    """[Atomic] 获取所有图标信息"""
+    return db.query(models.Icon).filter().all()

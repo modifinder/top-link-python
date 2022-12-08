@@ -1,7 +1,8 @@
 # -*- coding:utf-8 -*-
 
 from typing import Any, Union, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError, validator
+from utils import is_email
 
 
 class TokenSchema(BaseModel):
@@ -17,6 +18,32 @@ class TokenPayload(BaseModel):
 class UserBase(BaseModel):
     user_name: str
     email: Optional[str]
+
+    @validator('user_name')
+    def user_name_must_be_alphanumeric_and_len_between_four_and_sixteen(cls, v):
+        if not v.isalnum():
+            raise ValueError('must be alphanumeric')
+        if len(v) <= 4 or len(v) >= 16:
+            raise ValueError('must be between 4 and 16 characters')
+        return v
+
+    @validator('email')
+    def email_must_be_valid(cls, v):
+        if v and not is_email(v):
+            raise ValueError('must be a valid email address')
+        return v
+
+
+class UserRegister(UserBase):
+    password: str = Field(..., min_length=6, max_length=16)
+    interest_primary_code: int
+    field_code: int
+
+    @validator('password')
+    def password_must_be_len_between_six_and_sixteen(cls, v):
+        if len(v) <= 6 or len(v) >= 16:
+            raise ValueError('must be between 6 and 16 characters')
+        return v
 
 
 class UserAuth(UserBase):
@@ -84,3 +111,16 @@ class SettingBase(BaseModel):
     page_title: str
     page_bio: str
     profile_picture: str
+
+
+class SettingCreate(SettingBase):
+    user_id: int
+    user_name: str
+    theme: str = "default"
+    page_title: str = ""
+    page_bio: str = ""
+    profile_picture: str = "/images/avatar/default.jpg"
+    interest_primary_code: int = 1
+    field_code: int = 1
+    verified: int = 0
+    auth_content: str = ""

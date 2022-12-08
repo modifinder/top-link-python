@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+import crud
 import schemas
 import uuid
-from deps import get_current_user
+from deps import get_current_user, get_db
 import utils
 
 router = APIRouter()
@@ -35,3 +37,9 @@ async def delete_icon(data: schemas.StringData, user: schemas.UserBase = Depends
     file_name = data.data.split("/")[-1]
     utils.delete_image_by_filename("thumb", file_name)
     return schemas.Response()
+
+
+@router.get("/icon")
+async def get_icon(db: Session =  Depends(get_db)):
+    """获取图标"""
+    return schemas.Response(data=crud.get_all_icons(db))

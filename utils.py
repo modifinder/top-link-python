@@ -27,7 +27,6 @@ scheme = 'https'
 config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
 client = CosS3Client(config)
 
-
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 14  # 14 days
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 14  # 14 days
 ALGORITHM = "HS256"
@@ -69,44 +68,14 @@ def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) ->
     return encoded_jwt
 
 
-def create_image(sub_dir: str, file_name: str, image_data: str):
-    """
-    :return:
-    """
-    head, content = image_data.split(",")
-    img_data = base64.b64decode(content)
-
-    try:
-        with open(f"{images_base_path}/{sub_dir}/{file_name}", "wb+") as f:
-            f.write(img_data)
-        return True, ""
-    except Exception as e:
-        return False, e
-
-
-def delete_image_by_filename(sub_dir: str, file_name: str):
-    """
-    :param
-        :file_name 文件名
-    删除旧文件
-    :return:
-    """
-    path = f"{images_base_path}/{sub_dir}/{file_name}"
-    try:
-        if os.path.isfile(path):
-            os.remove(path)
-        return True, ""
-    except Exception as e:
-        return False, e
-
-
 def get_retain_username() -> str:
     """
     获取保留用户名
     :return:
     """
     retain_username = ["admin", "administrator", "root", "superuser", "super", "user", "guest",
-                       "anonymous", "anonymoususer", "anonymous_user"]
+                       "anonymous", "anonymoususer", "anonymous_user", "test", "testuser", "test_user",
+                       ]
     return retain_username
 
 
@@ -116,9 +85,9 @@ def is_email(email: str) -> bool:
     :param email:
     :return:
     """
-    if len(email) > 7:
-        if re.match("^.+@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) is not None:
-            return True
+    if re.match(r"^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,"
+                r"3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$", email) is not None:
+        return True
     return False
 
 
@@ -174,4 +143,3 @@ def delete_image_from_cos(file_name: str, sub_dir: str = "avatar"):
         return True, key
     except Exception as e:
         return False, e
-

@@ -21,15 +21,17 @@ class UserBase(BaseModel):
 
     @validator('user_name')
     def user_name_must_be_alphanumeric_and_len_between_four_and_sixteen(cls, v):
+        # 用户名只能是字母或数字
         if not v.isalnum():
             raise ValueError('must be alphanumeric')
+        # 长度检查
         if len(v) <= 4 or len(v) >= 16:
             raise ValueError('must be between 4 and 16 characters')
         return v
 
     @validator('email')
     def email_must_be_valid(cls, v):
-        if v and not is_email(v):
+        if not is_email(v):
             raise ValueError('must be a valid email address')
         return v
 

@@ -1,3 +1,5 @@
+# -*- coding=utf-8
+
 from passlib.context import CryptContext
 import os
 import base64
@@ -6,12 +8,32 @@ from typing import Union, Any
 from jose import jwt
 import re
 
+from qcloud_cos import CosConfig
+from qcloud_cos import CosS3Client
+import sys
+import logging
+
+# 正常情况日志级别使用INFO，需要定位时可以修改为DEBUG，此时SDK会打印和服务端的通信信息
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+
+# 1. 设置用户属性, 包括 secret_id, secret_key, region等。Appid 已在CosConfig中移除，请在参数 Bucket 中带上 Appid。Bucket 由 BucketName-Appid 组成
+secret_id = os.getenv("cos_app_id")
+secret_key = os.getenv("cos_app_key")
+region = 'ap-shanghai'
+
+token = None
+scheme = 'https'
+
+config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
+client = CosS3Client(config)
+
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 14  # 14 days
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 14  # 14 days
 ALGORITHM = "HS256"
-JWT_SECRET_KEY = "10ds5e0j4saa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e813e7"
-JWT_REFRESH_SECRET_KEY = "09d25e094faa6ca2556cl181h6bha95hhh93f209926f0f1caa6c163b88e8d3e7"
+JWT_SECRET_KEY = os.getenv("jwt_key")
+JWT_REFRESH_SECRET_KEY = os.getenv("jwt_refresh_key")
+
 images_base_path = "/Users/mac/JavaScriptProjects/top-bio/public/images"
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -109,3 +131,47 @@ def is_username(username: str) -> bool:
     if re.match("^[a-zA-Z0-9_-]{4,16}$", username) is not None:
         return True
     return False
+
+
+def put_image_to_cos(file_name: str, image_data: str, sub_dir: str = "avatar"):
+    """
+    :return:
+    """
+    head, content = image_data.split(",")
+    img_data = base64.b64decode(content)
+    sub_dir = f"/top/images/{sub_dir}"
+    key = f"{sub_dir}/{file_name}"
+    try:
+        response = client.put_object(
+            Bucket='top-bio-1308265831',
+            Body=img_data,
+            Key=key,
+            StorageClass='STANDARD',
+            EnableMD5=False
+        )
+        print(response)
+        return True, key
+    except Exception as e:
+        print(response)
+        return False, e
+
+
+def delete_image_from_cos(file_name: str, sub_dir: str = "avatar"):
+    """
+    :param
+        :file_name 文件名
+    删除旧文件
+    :return:
+    """
+    sub_dir = f"/top/images/{sub_dir}"
+    key = f"{sub_dir}/{file_name}"
+    print(key, "keykeykeykye")
+    try:
+        response = client.delete_object(
+            Bucket='top-bio-1308265831',
+            Key=key
+        )
+        return True, key
+    except Exception as e:
+        return False, e
+

@@ -119,7 +119,7 @@ class SettingCreate(SettingBase):
     theme: str = "default"
     page_title: str = ""
     page_bio: str = ""
-    profile_picture: str = "/images/avatar/default.jpg"
+    profile_picture: str = "/top/images/avatar/default.jpg"
     interest_primary_code: int = 1
     field_code: int = 1
     verified: int = 0

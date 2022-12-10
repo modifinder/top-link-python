@@ -28,13 +28,6 @@ async def create_user(data: schemas.UserRegister, db: Session = Depends(get_db))
             detail="User with this name already exist"
         )
 
-    # 检查是否保留用户名
-    for i in get_retain_username():
-        if i == data.user_name:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="This name is reserved"
-            )
 
     hashed_password = get_hashed_password(data.password)
     new_user = data.dict()
@@ -92,6 +85,11 @@ async def get_me(user: schemas.UserBase = Depends(get_current_user)):
 
 @router.get("/exists/{username}", summary="Check if user exists")
 async def check_user_exists(username: str, db: Session = Depends(get_db)):
+    # 检查是否保留用户名
+    for i in get_retain_username():
+        if i == username:
+            return schemas.Response(data=True)
+
     user = crud.get_user_by_user_name(db, username)
     return schemas.Response(data=user is not None)
 

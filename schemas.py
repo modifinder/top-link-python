@@ -25,7 +25,7 @@ class UserBase(BaseModel):
         if not v.isalnum():
             raise ValueError('must be alphanumeric')
         # 长度检查
-        if len(v) <= 4 or len(v) >= 16:
+        if len(v) < 4 or len(v) > 16:
             raise ValueError('must be between 4 and 16 characters')
         return v
 
@@ -38,12 +38,12 @@ class UserBase(BaseModel):
 
 class UserRegister(UserBase):
     password: str = Field(..., min_length=6, max_length=16)
-    interest_primary_code: int
+    tags: List[str] = Field(..., min_items=1, max_items=11)
     field_code: int
 
     @validator('password')
     def password_must_be_len_between_six_and_sixteen(cls, v):
-        if len(v) <= 6 or len(v) >= 16:
+        if len(v) < 6 or len(v) > 16:
             raise ValueError('must be between 6 and 16 characters')
         return v
 
@@ -122,7 +122,6 @@ class SettingCreate(SettingBase):
     page_title: str = ""
     page_bio: str = ""
     profile_picture: str = "/top/images/avatar/default.jpg"
-    interest_primary_code: int = 1
     field_code: int = 1
     verified: int = 0
     auth_content: str = ""

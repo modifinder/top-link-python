@@ -20,6 +20,7 @@ router = APIRouter()
 
 @router.post('/signup', summary="Create new user")
 async def create_user(data: schemas.UserRegister, db: Session = Depends(get_db)):
+    print(data.dict())
     # check username if it exited
     user = crud.get_user_by_user_name(db, data.user_name)
     if user is not None:
@@ -36,19 +37,37 @@ async def create_user(data: schemas.UserRegister, db: Session = Depends(get_db))
     now = int(time.time())
 
     try:
+        # create user
         user_create = schemas.UserCreate(**new_user, enable=True, create_time=now, update_time=now)
         crud.create_user(db, user_create)
         user_id = crud.get_user_by_user_name(db, data.user_name).id
+
+        # create user setting
         setting_create = schemas.SettingCreate(
             user_id=user_id, user_name=data.user_name, page_title="@"+data.user_name,
-            field_code = data.field_code, interest_primary_code = data.interest_primary_code,
+            field_code = data.field_code
         )
-        print(setting_create)
         crud.create_setting(db, setting_create)
+
+
+        # insert user tags
+        tags = data.tags
+        for tag in tags:
+            # check tag if it exited
+            tag_id = crud.get_tag_id_by_tag_name(db, tag)
+            if not tag_id:
+                # create new tag
+                crud.add_one_tag_by_tag_name(db, tag)
+                tag_id = crud.get_tag_id_by_tag_name(db, tag)
+            crud.add_user_tag(db, user_id, tag_id.id)
+
+
+        # return
         return schemas.Response(msg="user created successfully", data={
             "access_token": create_access_token(data.user_name),
             "refresh_token": create_refresh_token(data.user_name),
         })
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

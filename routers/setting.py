@@ -100,3 +100,13 @@ async def patch_setting_base(setting: schemas.SettingBase,
         )
 
 
+@router.get("/tags/default/{_type}")
+async def get_default_tags(db: Session = Depends(get_db), _type: str = "zh"):
+    """
+    get the default tags
+    :param db:
+    :return:
+    """
+    is_english = True if _type == "en" else False
+    tags = crud.get_default_tags(db, is_english)
+    return schemas.Response(data=tags)

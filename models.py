@@ -39,7 +39,6 @@ class Setting(Base):
     page_title = Column(String(32))
     page_bio = Column(String(128))
     profile_picture = Column(String(255))
-    interest_primary_code = Column(Integer)
     field_code = Column(Integer)
     verified = Column(Boolean, default=False)
     auth_content = Column(String(128))
@@ -47,14 +46,12 @@ class Setting(Base):
 
 class Themes(Base):
     __tablename__ = "theme"
-    """
-    INSERT INTO `theme` (`id`, `name`, `title`, `has_filter`, `basic_bg`, `title_color`, `bio_color`, `text_color`, `footer_color`, `link_bg`, `link_border_radius`, `thumb_border_radius`, `thumb`) VALUES (NULL, 'yellow', '渐变黄', '0', 'linear-gradient(rgb(255, 240, 3), rgb(255, 126, 23))', '#1d1d1f', '#1d1d1f', '#1d1d1f', '#1d1d1f', 'linear-gradient(rgb(255, 240, 3), rgb(255, 126, 23))', '5px', '5px', '/images/theme/default.jpg')
-    """
     id = Column(Integer, primary_key=True, index=True)
     position = Column(Integer)
     display = Column(Boolean)
     name = Column(String(64), index=True)
     title = Column(String(64))
+    title_en = Column(String(64))
     has_filter = Column(Boolean, default=False)
     basic_bg = Column(String(64))
     title_color = Column(String(64))
@@ -77,6 +74,7 @@ class Field(Base):
     __tablename__ = "field"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(64))
+    name_en = Column(String(64))
 
 
 class InterestPrimary(Base):
@@ -85,15 +83,22 @@ class InterestPrimary(Base):
     name = Column(String(64))
 
 
-class InterestSecondary(Base):
-    __tablename__ = "interest_secondary"
-    id = Column(Integer, primary_key=True, index=True)
-    pid = Column(Integer, index=True)
-    name = Column(String(64))
-
-
 class Icon(Base):
     __tablename__ = "icon"
     id = Column(Integer, primary_key=True, index=True)
     index = Column(Integer)
     url = Column(String(255))
+
+
+class Tag(Base):
+    __tablename__ = "tag"
+    id = Column(Integer, primary_key=True, index=True)
+    # 任何语言类型，都存在此字段
+    name = Column(String(64))
+
+
+class UserTag(Base):
+    __tablename__ = "user_tag"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    tag_id = Column(Integer, index=True)

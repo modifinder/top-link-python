@@ -33,7 +33,6 @@ ALGORITHM = "HS256"
 JWT_SECRET_KEY = os.getenv("jwt_key")
 JWT_REFRESH_SECRET_KEY = os.getenv("jwt_refresh_key")
 
-images_base_path = "/Users/mac/JavaScriptProjects/top-bio/public/images"
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -118,7 +117,6 @@ def put_image_to_cos(file_name: str, image_data: str, sub_dir: str = "avatar"):
             StorageClass='STANDARD',
             EnableMD5=False
         )
-        print(response)
         return True, key
     except Exception as e:
         print(response)
@@ -134,7 +132,6 @@ def delete_image_from_cos(file_name: str, sub_dir: str = "avatar"):
     """
     sub_dir = f"/top/images/{sub_dir}"
     key = f"{sub_dir}/{file_name}"
-    print(key, "keykeykeykye")
     try:
         response = client.delete_object(
             Bucket='top-bio-1308265831',

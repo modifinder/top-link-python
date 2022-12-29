@@ -169,3 +169,33 @@ def get_setting_by_interest_code_and_field_code(db: Session, field_code: int = 0
 def get_all_icons(db: Session):
     """[Atomic] 获取所有图标信息"""
     return db.query(models.Icon).filter().all()
+
+
+def get_default_tags(db: Session, is_english: bool = False):
+    """获取默认标签组"""
+    if is_english:
+        return db.query(models.Tag).offset(12).limit(12).all()
+    return db.query(models.Tag).limit(12).all()
+
+
+def get_tag_id_by_tag_name(db: Session, tag_name: str):
+    """根据标签名获取标签id"""
+    return db.query(models.Tag).filter(models.Tag.name == tag_name).first()
+
+
+def add_one_tag_by_tag_name(db: Session, tag_name: str):
+    """添加一个标签"""
+    tag = models.Tag(name=tag_name)
+    db.add(tag)
+    db.commit()
+    db.refresh(tag)
+    return tag
+
+
+def add_user_tag(db: Session, user_id: int, tag_id: int):
+    """添加用户标签"""
+    user_tag = models.UserTag(user_id=user_id, tag_id=tag_id)
+    db.add(user_tag)
+    db.commit()
+    db.refresh(user_tag)
+    return user_tag

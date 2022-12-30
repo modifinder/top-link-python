@@ -20,6 +20,13 @@ async def get_setting_explore(db: Session = Depends(get_db), field_code: int = 0
     return schemas.ResponseWithCount(data=result, count=count)
 
 
+@router.post("/explore")
+async def search_setting(data: schemas.Explore, page: int = 1, limit: int = 15, db: Session = Depends(get_db)):
+    """搜索用户"""
+    data, pages = crud.explore_setting(db, data.field_code, data.tags, page, limit)
+    return schemas.ResponseWithCount(data=data, count=pages)
+
+
 @router.get("/fields")
 async def get_setting_fields(db: Session = Depends(get_db)):
     """

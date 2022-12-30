@@ -125,3 +125,9 @@ class SettingCreate(SettingBase):
     field_code: int = 1
     verified: int = 0
     auth_content: str = ""
+
+
+class Explore(BaseModel):
+    field_code: int
+    tags: List[str]
+

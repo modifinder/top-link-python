@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import math
 
+from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, func
 from database import engine
@@ -164,6 +165,51 @@ def get_setting_by_interest_code_and_field_code(db: Session, field_code: int = 0
         pages = math.ceil(count / page_size)
         return data, pages
     return None, 0
+
+
+def explore_setting(db: Session, field_code: int = 0, tags: List = [], page: int = 10, limit: int = 1):
+    """根据field_code以及tags查询用户信息"""
+    query = db.query(models.Setting)
+
+    # The max limit is 50
+    if limit > 50:
+        limit = 10
+
+    offset = (page - 1) * limit
+
+    # Case 1: only field_code
+    if field_code and not len(tags):
+        data = query.filter(models.Setting.field_code == field_code).limit(limit).offset(offset).all()
+        count = db.query(func.count(models.Setting.field_code)).filter(models.Setting.field_code == field_code).scalar()
+        pages = math.ceil(count / limit)
+        return data, pages
+
+
+    # Case 2: only tags
+    elif not field_code and tags:
+        tags_id = []
+        for i in tags:
+            data = get_tag_id_by_tag_name(db, i)
+            if data:
+                tags_id.append(data.id)
+        users_id = db.query(models.UserTag.user_id).filter(models.UserTag.tag_id.in_(tags_id)).distinct(models.UserTag.user_id).all()
+        users_id = [i[0] for i in users_id if any(i)]
+        data = query.filter(models.Setting.user_id.in_(users_id)).limit(limit).offset(offset).all()
+        count = db.query(func.count(models.Setting.user_id)).filter(models.Setting.user_id.in_(users_id)).scalar()
+        return data, math.ceil(count / limit)
+
+    # Case 3: field_code and tags
+    tags_id = []
+    for i in tags:
+        data = get_tag_id_by_tag_name(db, i)
+        if data:
+            tags_id.append(data.id)
+    users_id = db.query(models.UserTag.user_id).filter(models.UserTag.tag_id.in_(tags_id)).distinct(models.UserTag.user_id).all()
+    users_id = [i[0] for i in users_id if any(i)]
+    data = query.filter(models.Setting.user_id.in_(users_id), models.Setting.field_code == field_code).limit(limit).offset(offset).all()
+    count = db.query(func.count(models.Setting.user_id)).filter(models.Setting.user_id.in_(users_id), models.Setting.field_code == field_code).scalar()
+    return data, math.ceil(count / limit)
+
 
 
 def get_all_icons(db: Session):

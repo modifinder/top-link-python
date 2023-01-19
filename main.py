@@ -14,7 +14,7 @@ app = FastAPI()
 origins = [
     "https://the.top",
     "https://www.the.top",
-    "https://test.5050520.xyz",
+    "https://top.the.top",
     "http://localhost",
 ]
 

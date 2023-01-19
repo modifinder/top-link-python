@@ -104,6 +104,11 @@ async def get_me(user: schemas.UserBase = Depends(get_current_user)):
 
 @router.get("/exists/{username}", summary="Check if user exists")
 async def check_user_exists(username: str, db: Session = Depends(get_db)):
+    is_sensitive = crud.is_sensitive_word(db, username)
+
+    if is_sensitive is not None:
+        return schemas.Response(data=True)
+
     # 检查是否保留用户名
     for i in get_retain_username():
         if i == username:

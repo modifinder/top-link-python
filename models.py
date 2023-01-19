@@ -102,3 +102,9 @@ class UserTag(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)
     tag_id = Column(Integer, index=True)
+
+
+class SensitiveWord(Base):
+    __tablename__ = "sensitive_word"
+    id = Column(Integer, primary_key=True, index=True)
+    word = Column(String(128))

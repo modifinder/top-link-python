@@ -245,3 +245,8 @@ def add_user_tag(db: Session, user_id: int, tag_id: int):
     db.commit()
     db.refresh(user_tag)
     return user_tag
+
+
+def is_sensitive_word(db: Session, word: str):
+    """判断是否是敏感词"""
+    return db.query(models.SensitiveWord).filter(models.SensitiveWord.word == word).first()

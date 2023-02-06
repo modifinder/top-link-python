@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, CHAR
+from sqlalchemy import Boolean, Column, Integer, String, CHAR
 from database import Base
 
 
@@ -53,7 +53,7 @@ class Themes(Base):
     title = Column(String(64))
     title_en = Column(String(64))
     has_filter = Column(Boolean, default=False)
-    basic_bg = Column(String(64))
+    basic_bg = Column(String(128))
     title_color = Column(String(64))
     bio_color = Column(String(64))
     text_color = Column(String(64))

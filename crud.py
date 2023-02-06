@@ -211,7 +211,6 @@ def explore_setting(db: Session, field_code: int = 0, tags: List = [], page: int
     return data, math.ceil(count / limit)
 
 
-
 def get_all_icons(db: Session):
     """[Atomic] 获取所有图标信息"""
     return db.query(models.Icon).filter().all()
